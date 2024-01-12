@@ -1,0 +1,16 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:sms="http://typo3.org/ns/Sitegeist/SmsResponsiveImages/ViewHelpers"
+      xmlns:t3sswiper="http://typo3.org/ns/T3S/T3sSwiper/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<sms:media
+	class="swiper-slide-image"
+	file="{slide.t3s_swiperslide.0}"
+	width="{dimensions.width}"
+	alt="{f:if(condition: '{slide.t3s_swiperslide.0.alternative}', then: '{slide.t3s_swiperslide.0.alternative}', else: '{slide.title}')}"
+	breakpoints="{
+		0: {'cropVariant': 'default', 'media': '(min-width: 1200px)', 'srcset': '1200,1400,1920,2560'},
+		1: {'cropVariant': 'tablet', 'media': '(min-width: 576px)', 'srcset': '576,768,992'},
+		2: {'cropVariant': 'mobile', 'media': '(max-width: 575px)', 'srcset': '575'}
+	}"
+/>
+</html>

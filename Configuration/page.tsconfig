@@ -1,0 +1,10 @@
+TCEFORM.sys_file_reference {
+	description.disabled = 1
+	link.disabled = 1
+	title.disabled = 1
+	tx_t3sbootstrap_description_align.disabled = 1
+	tx_t3sbootstrap_extra_class.disabled = 1
+	tx_t3sbootstrap_extra_imgclass.disabled = 1
+	tx_t3sbootstrap_copyright_color.disabled = 1
+	tx_t3sbootstrap_copyright_source.disabled = 1
+}

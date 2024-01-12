@@ -1,0 +1,543 @@
+identifier: T3S/SwiperSettings
+fields:
+  -
+    identifier: t3s_swipersettings_tab
+    type: Tab
+    label: Swiper Settings
+  -
+    identifier: swipersettings_palette
+    type: Palette
+    label: Swiper Slider Settings
+    description: Swiper - is the free and most modern mobile touch slider with hardware accelerated transitions and amazing native behavior
+    fields:
+    - identifier: pi_flexform
+      useExistingField: true
+      type: FlexForm
+      label: Swiper Settings
+      fields:
+        - 
+          type: Sheet
+          identifier: main
+          label: Main
+          description: Main Swiper settings
+          fields:
+            - identifier: width
+              label: Max. Swiper width in px
+              type: Number
+              default: 1300
+              size: 5
+              range:
+                lower: 100
+            - identifier: ratio
+              label: Aspect ratio
+              description: e.g. 1:1, 4:3 or 36:24 ... (default 16:9)
+              default: 16:9
+              type: Text
+              size: 5
+            - identifier: themeColor
+              label: Theme color
+              description: for navigation and pagination etc.
+              type: Color
+              size: 5
+            - identifier: backendView
+              label: Backend preview
+              description: shows slider also in backend if activated
+              type: Checkbox
+              renderType: checkboxToggle
+              default: 1
+        - 
+          type: Sheet
+          identifier: caption
+          label: Caption
+          description: Caption settings
+          fields:
+            - identifier: useCaption
+              label: Use title and caption in the slider
+              type: Checkbox
+              renderType: checkboxToggle
+              default: 1
+            - identifier: disableCaption
+              label: Disable Caption
+              description: if screen sizes width is <= your selection
+              type: Select
+              renderType: selectSingle
+              default: ''
+              items:
+                - label: 'never'
+                  value: ''
+                - label: '576px'
+                  value: '576'
+                - label: '768px'
+                  value: '768'
+                - label: '992px'
+                  value: '992'
+            - identifier: captionWidth
+              label: Caption width
+              description: general setting - override in "Swiper Slides" is possible
+              type: Select
+              renderType: selectSingle
+              default: 'w-50'
+              items:
+                - label: 'auto'
+                  value: ''
+                - label: 'Width 25%'
+                  value: 'w-25'
+                - label: 'Width 33%'
+                  value: 'w-33'
+                - label: 'Width 50%'
+                  value: 'w-50'
+                - label: 'Width 75%'
+                  value: 'w-75'
+                - label: 'Width 100%'
+                  value: 'w-100'
+            - identifier: contentAlign
+              label: Caption align
+              description: general setting - override in "Swiper Slides" is possible
+              type: Select
+              renderType: selectSingle
+              default: 'center-center'
+              items:
+                - label: 'left-top'
+                  value: 'left-top'
+                - label: 'left-center'
+                  value: 'left-center'
+                - label: 'left-bottom'
+                  value: 'left-bottom'
+                - label: 'center-top'
+                  value: 'center-top'
+                - label: 'center-center'
+                  value: 'center-center'
+                - label: 'center-bottom'
+                  value: 'center-bottom'
+                - label: 'right-top'
+                  value: 'right-top'
+                - label: 'right-center'
+                  value: 'right-center'
+                - label: 'right-bottom'
+                  value: 'right-bottom'
+            - identifier: swiperPadding
+              label: Swiper padding
+              description: slider padding in px
+              type: Number
+              default: 20
+              size: 5
+              range:
+                lower: 0
+        - 
+          type: Sheet
+          identifier: parameter
+          label: Parameters
+          description: Swiper optional parameters
+          fields:
+            - identifier: slidesPerView
+              label: Slides per view - only if "Effect type" is "slide"
+              description: number of slides per view (slides visible at the same time on slider's container)
+              type: Select
+              renderType: selectSingle
+              default: '1'
+              items:
+                - label: '1'
+                  value: '1'
+                - label: '2'
+                  value: '2'
+                - label: '3'
+                  value: '3'
+                - label: '4'
+                  value: '4'
+                - label: '5'
+                  value: '5'
+                - label: '6'
+                  value: '6'
+                - label: '7'
+                  value: '7'
+                - label: '8'
+                  value: '8'
+                - label: '9'
+                  value: '9'
+                - label: '10'
+                  value: '10'
+                - label: '11'
+                  value: '11'
+                - label: '12'
+                  value: '12'
+            - identifier: slidesPerGroup
+              label: Slides per group - only if "Effect type" is "slide"
+              description: set numbers of slides to define and enable group sliding. Useful to use with slidesPerView > 1
+              type: Select
+              renderType: selectSingle
+              default: '1'
+              items:
+                - label: '1'
+                  value: '1'
+                - label: '2'
+                  value: '2'
+                - label: '3'
+                  value: '3'
+                - label: '4'
+                  value: '4'
+                - label: '5'
+                  value: '5'
+                - label: '6'
+                  value: '6'
+                - label: '7'
+                  value: '7'
+                - label: '8'
+                  value: '8'
+                - label: '9'
+                  value: '9'
+                - label: '10'
+                  value: '10'
+                - label: '11'
+                  value: '11'
+                - label: '12'
+                  value: '12'
+            - identifier: spaceBetween
+              label: Space between - only if "Effect type" is "slide"
+              description: distance between slides in px
+              type: Number
+              default: 0
+              size: 5
+              range:
+                lower: 0
+            - identifier: speed
+              label: Speed
+              description: duration of transition between slides (in ms)
+              type: Number
+              default: 300
+              size: 5
+              range:
+                lower: 1
+            - identifier: initialSlide
+              label: Initial slide
+              description: index number of initial slide
+              type: Number
+              default: 0
+              size: 5
+              range:
+                lower: 0
+            - identifier: loop
+              label: Loop
+              description: set to true to enable continuous loop mode
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: centeredSlides
+              label: Centered slides
+              description: if true, then active slide will be centered, not always on the left side
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: grabCursor
+              label: Grab cursor
+              description: this option may a little improve desktop usability. If true, user will see the "grab" cursor when hover on Swiper
+              type: Checkbox
+              renderType: checkboxToggle
+        - 
+          type: Sheet
+          identifier: breakpoints
+          label: Breakpoints
+          description: Allows to set different parameter (slidesPerView & slidesPerGroup) for different responsive breakpoints (screen sizes).
+          fields:
+            - identifier: useBreakpoints
+              label: Use breakpoints
+              description: only if "Effect type" is "slide"
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: bp_10_slidesPerView
+              label: Slides per view if screen size is < 576px
+              description: number of slides per view (slides visible at the same time on slider's container)
+              type: Number
+              size: 5
+              default: 1
+              range:
+                lower: 1
+            - identifier: bp_10_slidesPerGroup
+              label: Slides per group if screen size is < 576px
+              description: set numbers of slides to define and enable group sliding. Useful to use with slidesPerView > 1
+              type: Number
+              size: 5
+              default: 1
+              range:
+                lower: 1
+            - identifier: bp_576_slidesPerView
+              label: Slides per view if screen size is > 575px and < 768px
+              description: number of slides per view (slides visible at the same time on slider's container)
+              type: Number
+              size: 5
+              default: 2
+              range:
+                lower: 1
+            - identifier: bp_576_slidesPerGroup
+              label: Slides per group if screen size is > 575px and < 768px
+              description: set numbers of slides to define and enable group sliding. Useful to use with slidesPerView > 1
+              type: Number
+              size: 5
+              default: 1
+              range:
+                lower: 1
+            - identifier: bp_768_slidesPerView
+              label: Slides per view if screen size is > 767px and < 992px
+              description: number of slides per view (slides visible at the same time on slider's container)
+              type: Number
+              size: 5
+              default: 3
+              range:
+                lower: 1
+            - identifier: bp_768_slidesPerGroup
+              label: Slides per group if screen size is > 767px and < 992px
+              description: set numbers of slides to define and enable group sliding. Useful to use with slidesPerView > 1
+              type: Number
+              size: 5
+              default: 1
+              range:
+                lower: 1
+            - identifier: bp_992_slidesPerView
+              label: Slides per view if screen size is > 991px and < 1200px
+              description: number of slides per view (slides visible at the same time on slider's container)
+              type: Number
+              size: 5
+              default: 4
+              range:
+                lower: 1
+            - identifier: bp_992_slidesPerGroup
+              label: Slides per group if screen size is > 991px and < 1200px
+              description: set numbers of slides to define and enable group sliding. Useful to use with slidesPerView > 1
+              type: Number
+              size: 5
+              default: 1
+              range:
+                lower: 1
+            - identifier: bp_1200_slidesPerView
+              label: Slides per view if screen size is > 1199px and < 1400px
+              description: number of slides per view (slides visible at the same time on slider's container)
+              type: Number
+              size: 5
+              default: 5
+              range:
+                lower: 1
+            - identifier: bp_1200_slidesPerGroup
+              label: Slides per group if screen size is > 1199px and < 1400px
+              description: set numbers of slides to define and enable group sliding. Useful to use with slidesPerView > 1
+              type: Number
+              size: 5
+              default: 1
+              range:
+                lower: 1
+            - identifier: bp_1400_slidesPerView
+              label: Slides per view if screen size is > 1399px and < 1900px
+              description: number of slides per view (slides visible at the same time on slider's container)
+              type: Number
+              size: 5
+              default: 6
+              range:
+                lower: 1
+            - identifier: bp_1400_slidesPerGroup
+              label: Slides per group if screen size is > 1399px and < 1900px
+              description: set numbers of slides to define and enable group sliding. Useful to use with slidesPerView > 1
+              type: Number
+              size: 5
+              default: 1
+              range:
+                lower: 1
+            - identifier: bp_1900_slidesPerView
+              label: Slides per view if screen size is > 1900 and < 2560px
+              description: number of slides per view (slides visible at the same time on slider's container)
+              type: Number
+              size: 5
+              default: 7
+              range:
+                lower: 1
+            - identifier: bp_1900_slidesPerGroup
+              label: Slides per group if screen size is > 1900 and < 2560px
+              description: set numbers of slides to define and enable group sliding. Useful to use with slidesPerView > 1
+              type: Number
+              size: 5
+              default: 1
+              range:
+                lower: 1
+        - 
+          type: Sheet
+          identifier: effects
+          label: Effects
+          description: A small selection of often used effects as well as some presets with the effect "Creative"
+          fields:
+            - identifier: effectType
+              label: Effect type
+              description: some effects depends on the selected type
+              type: Select
+              renderType: selectSingle
+              default: 'slide'
+              items:
+                - label: 'slide'
+                  value: 'slide'
+                - label: 'fade'
+                  value: 'fade'
+                - label: 'cube'
+                  value: 'cube'
+                - label: 'flip'
+                  value: 'flip'
+                - label: 'cards'
+                  value: 'cards'
+                - label: 'creative'
+                  value: 'creative'
+            - identifier: slidedirection
+              label: Direction
+              description: can be 'horizontal' or 'vertical' (for vertical slider)
+              type: Select
+              renderType: selectSingle
+              default: 'horizontal'
+              items:
+                - label: 'horizontal'
+                  value: 'horizontal'
+                - label: 'vertical'
+                  value: 'vertical'
+            - identifier: slideRows
+              label: Slide rows - only if "Effect type" is "slide"
+              description: number of slides rows, for multirow layout - rows > 1 is currently not compatible with loop mode & useBreakpoints
+              type: Number
+              size: 5
+              default: 1
+              range:
+                lower: 1
+            - identifier: creativePresets
+              label: Creative effect presets
+              description: only if Effect type "creative" is selected
+              type: Select
+              renderType: selectSingle
+              items:
+                - label: 'Preset 1'
+                  value: '1'
+                - label: 'Preset 2'
+                  value: '2'
+                - label: 'Preset 3'
+                  value: '3'
+                - label: 'Preset 4'
+                  value: '4'
+                - label: 'Preset 5'
+                  value: '5'
+                - label: 'Preset 6'
+                  value: '6'
+        - 
+          type: Sheet
+          identifier: navigation
+          label: Navigation
+          description: Enable Navigation, Scrollbar and Keyboard Control
+          fields:
+            - identifier: navigationEnable
+              label: Enables navigation arrows/buttons
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: scrollbarEnable
+              label: Enable scrollbar
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: keyboardEnable
+              label: Enable Keyboard Control
+              type: Checkbox
+              renderType: checkboxToggle
+        - 
+          type: Sheet
+          identifier: pagination
+          label: Pagination
+          description: Pagination Parameters
+          fields:
+            - identifier: paginationEnable
+              label: Enable pagination
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: paginationType
+              label: Pagination type
+              type: Select
+              renderType: selectSingle
+              default: 'bullets'
+              items:
+                - label: 'bullets'
+                  value: 'bullets'
+                - label: 'progessbar'
+                  value: 'progessbar'
+                - label: 'fraction'
+                  value: 'fraction'
+            - identifier: paginationClickable
+              label: Pagination clickable
+              description: only for pagination type "bullets"
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: paginationDynamicBullets
+              label: Pagination - dynamic bullets
+              description: good to enable if you use bullets pagination with a lot of slides. So it will keep only few bullets visible at the same time
+              type: Checkbox
+              renderType: checkboxToggle
+        - 
+          type: Sheet
+          identifier: autoplay
+          label: Autoplay
+          description: Autoplay Parameters
+          fields:
+            - identifier: autoplayEnable
+              label: Enable autoplay
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: autoplayProgressCircle
+              label: Autoplay progress circle
+              description: only if navigation is enabled
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: autoplayDelay
+              label: Autoplay delay
+              description: delay between transitions in ms (default 3000)
+              type: Number
+              default: 3000
+              size: 5
+              range:
+                lower: 1
+            - identifier: pauseOnMouseEnter
+              label: Autoplay - pause on pointer enter
+              description: when enabled autoplay will be paused on pointer (mouse) enter over Swiper container
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: autoplayDisableOnInteraction
+              label: Disable autoplay on interaction
+              description: set to false and autoplay will not be disabled after user interactions (swipes), it will be restarted every time after interaction (default true)
+              type: Checkbox
+              default: 1
+              renderType: checkboxToggle
+        - 
+          type: Sheet
+          identifier: thumbnails
+          label: Thumbs
+          description: Thumbs Parameters
+          fields:
+            - identifier: thumbnailsEnable
+              label: Enable thumbs
+              type: Checkbox
+              renderType: checkboxToggle
+            - identifier: thumbnailsSlidesPerView
+              label: Thumbnail slides per view
+              description: number of Thumbnail slides per view
+              type: Number
+              size: 5
+              default: 4
+              range:
+                lower: 2
+            - identifier: thumbnailsSpaceBetween
+              label: Thumbs Space between
+              description: distance between thumbs in px
+              type: Number
+              size: 5
+              default: 10
+              range:
+                lower: 0
+        - 
+          type: Sheet
+          identifier: customscript
+          label: Custom
+          description: Add custom script parameters or style here
+          fields:
+            - identifier: customScript
+              label: Custom script
+              description: if you are missing a possibility to customize the slider with the given options, you can add your own script here. More infos swiperjs.com/swiper-api
+              type: Textarea
+              rows: 5
+            - identifier: customCss
+              label: Custom CSS
+              type: Textarea
+              rows: 5
+

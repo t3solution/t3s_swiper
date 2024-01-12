@@ -1,0 +1,20 @@
+identifier: T3S/SwiperHeader
+fields:
+  - identifier: t3s_swiperheader_palette
+    type: Palette
+    label: Headlines
+    fields:
+      - identifier: header
+        useExistingField: true
+      - type: Linebreak
+      - identifier: header_layout
+        useExistingField: true
+      - identifier: header_position
+        useExistingField: true
+      - type: Linebreak
+      - identifier: header_link
+        useExistingField: true
+      - type: Linebreak
+      - identifier: subheader
+        useExistingField: true
+      - type: Linebreak

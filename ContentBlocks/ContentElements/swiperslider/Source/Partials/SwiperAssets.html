@@ -1,0 +1,24 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:t3sswiper="http://typo3.org/ns/T3S/T3sSwiper/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<cb:asset.css identifier="t3sSwiperDefaultCSS" file="Library/SwiperSlider/swiper-bundle.min.css" />
+<cb:asset.script identifier="t3sSwiperDefaultJS" file="Library/SwiperSlider/swiper-bundle.min.js" />
+<t3sswiper:assets settings="{data.pi_flexform}" uid="{data.uid}"/>
+
+<f:if condition="{data.pi_flexform.slideRows} > '1'">
+  <f:asset.script identifier="vanilla-swipergrid-{data.uid}">
+	// T3sSwiper (id={data.uid}) - Partials/SwiperAssets.html
+	let slider = document.getElementsByClassName('swiper-{data.uid}'); 
+	let wrapper = slider[0].childNodes[0];
+	let sliderSlide = wrapper.childNodes;
+    let width = sliderSlide[0].offsetWidth;
+    let height = sliderSlide[0].offsetHeight;
+	let rows = {data.pi_flexform.slideRows};
+	let space = {data.pi_flexform.spaceBetween} * (rows - 1);
+	let ttlWidth = width + space;
+    let ttlHeight = height * 2 + space;
+	wrapper.style.height = ttlHeight+'px';
+    wrapper.style.width = ttlWidth+'px';
+  </f:asset.script>
+</f:if>
+</html>

@@ -1,0 +1,53 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+  xmlns:t3sswiper="http://typo3.org/ns/T3S/T3sSwiper/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:if condition="{data.items -> f:count()}">
+<f:spaceless>
+	Number of slider items: {data.items -> f:count()}
+	<f:if condition="{data.pi_flexform.backendView}">
+		<f:render partial="SwiperAssets" arguments="{_all}" />
+		<cb:asset.css identifier="t3sSwiperPreviewCSS" file="swiper-slider.css"/>
+		<div id="c{data.uid}" class="t3s_swiper" style="display: flex;">
+			<f:variable name="dimensions"><t3sswiper:dimensions settings="{data.pi_flexform}" /></f:variable>
+			<div class="swiper swiper-{data.uid}" style="max-width:{dimensions.sliderwidth}px;max-height:{dimensions.sliderheight}px">
+				<f:comment> Slides </f:comment>
+				<div class="swiper-wrapper">
+					<f:render section="Preview" arguments="{_all}" />
+				</div>
+				<f:comment> Pagination </f:comment>
+				<f:if condition="{data.pi_flexform.paginationEnable}">
+					<div class="swiper-pagination"></div>
+				</f:if>
+				<f:comment> Navigation </f:comment>
+				<f:if condition="{data.pi_flexform.navigationEnable}">
+					<div class="swiper-button-prev"></div>
+					<div class="swiper-button-next"></div>
+				</f:if>
+				<f:comment> Progress Circle </f:comment>
+				<f:if condition="{data.pi_flexform.autoplayEnable} && {data.pi_flexform.autoplayProgressCircle}">
+					<div class="autoplay-progress">
+						<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"></circle></svg>
+						<span></span>
+					</div>
+				</f:if>
+				<f:comment> Scrollbar </f:comment>
+				<f:if condition="{data.pi_flexform.scrollbarEnable}">
+					<div class="swiper-scrollbar"></div>
+				</f:if>
+			</div>
+			<f:comment> Thumbs </f:comment>
+			<f:if condition="{data.pi_flexform.thumbnailsEnable}">
+				<div thumbsSlider="" class="swiper swiper-thumb swiper-thumb-{data.uid}" style="max-width:{dimensions.sliderwidth}px">
+					<div class="swiper-wrapper">
+						<f:for each="{data.items}" as="slide" iteration="iterator">
+							<div class="swiper-slide">
+								<f:render partial="SlideThumbnail" arguments="{_all}" />
+							</div>
+						</f:for>
+					</div>
+				</div>
+			</f:if>
+		</div>
+	</f:if>
+</f:spaceless>
+</f:if>
+</html>

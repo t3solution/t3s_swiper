@@ -1,0 +1,26 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:cb="http://typo3.org/ns/TYPO3/CMS/ContentBlocks/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<f:layout name="PreviewLayout" />
+<f:section name="Preview">
+    <f:for each="{data.items}" as="slide" iteration="iterator">
+        <div class="swiper-slide">
+            <f:if condition="{slide.t3s_swiperslide}">
+                <f:if condition="{smsResponsiveImages}">
+                    <f:then>
+                        <f:render partial="SmsResponsiveImages/SlideImage" arguments="{_all}" />
+                    </f:then>
+                    <f:else>
+                        <f:render partial="SlideImage" arguments="{_all}" />
+                    </f:else>
+                </f:if>
+            </f:if>
+            <f:if condition="{data.pi_flexform.useCaption} && ({slide.title} || {slide.caption})">
+                <f:render partial="SlideText" arguments="{_all}" />
+            </f:if>
+        </div>
+    </f:for>
+</f:section>
+</html>

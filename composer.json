@@ -1,0 +1,31 @@
+{
+    "name": "t3s/t3s-swiper",
+    "type": "typo3-cms-extension",
+    "description": "Swiper is the most modern free mobile touch slider with hardware accelerated transitions and amazing native behavior.",
+    "homepage": "https://www.t3sbootstrap.de/extensions/swiper-slider",
+    "license": ["GPL-2.0-or-later"],
+    "authors": [{
+        "name": "Helmut Hackbarth",
+        "email": "typo3@t3solution.de",
+        "role": "Developer"
+    }],
+    "keywords": [
+        "TYPO3 CMS",
+        "content_blocks",
+        "Swiper"
+      ],
+    "require": {
+        "typo3/cms-core": "^12.4",
+        "contentblocks/content-blocks": "^0.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "T3S\\T3sSwiper\\": "Classes/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "t3sswiper"
+        }
+    }
+}

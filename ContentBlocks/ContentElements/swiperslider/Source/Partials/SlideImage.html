@@ -1,0 +1,11 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+	  xmlns:t3sswiper="http://typo3.org/ns/T3S/T3sSwiper/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<f:image 
+	image="{slide.t3s_swiperslide.0}" 
+	class="swiper-slide-image" 
+	width="{dimensions.width}c" 
+	height="{dimensions.height}c"
+	alt="{f:if(condition: '{slide.t3s_swiperslide.0.alternative}', then: '{slide.t3s_swiperslide.0.alternative}', else: '{slide.title}')}" 
+/>
+</html>

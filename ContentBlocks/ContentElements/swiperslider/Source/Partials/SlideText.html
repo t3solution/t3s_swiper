@@ -1,0 +1,23 @@
+
+<f:variable name="captionWidth" value="{data.pi_flexform.captionWidth}" />
+<f:variable name="contentAlign" value="{data.pi_flexform.contentAlign}" />
+
+<f:if condition="{slide.pi_flexform.captionWidth}">
+	<f:variable name="captionWidth" value="{slide.pi_flexform.captionWidth}" />
+</f:if>
+<f:if condition="{slide.pi_flexform.contentAlign}">
+	<f:variable name="contentAlign" value="{slide.pi_flexform.contentAlign}" />
+</f:if>
+
+<div class="swiper-slide-content swiper-body-{slide.uid} {contentAlign}" style="padding:{data.pi_flexform.swiperPadding}px">
+	<div class="swiper-caption {captionWidth}" style="padding:1rem 1rem 0 1rem;background-color:rgba(255,255,255,0.60);">
+		<f:if condition="{slide.title}">
+			<h3>{slide.title -> f:format.raw()}</h3>
+		</f:if>
+		<f:if condition="{slide.caption}">
+			<div class="swiper-slide-text">
+				{slide.caption -> f:format.raw()}
+			</div>
+		</f:if>
+	</div>
+</div>

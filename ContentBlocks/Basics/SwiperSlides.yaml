@@ -1,0 +1,87 @@
+identifier: T3S/SwiperSlides
+fields:
+  -
+    identifier: t3s_swiperslides_tab
+    type: Tab
+    label: Swiper Slides
+  -
+    identifier: swiperslides_palette
+    type: Palette
+    label: Add your images and text here
+    fields:
+      - identifier: items
+        type: Collection
+        label: Swiper items
+        labelField: title
+        minitems: 1
+        fields:
+        - identifier: t3s_swiperslide
+          label: Swiper image
+          type: File
+          extendedPalette: true
+          minitems: 1
+          maxitems: 1
+          allowed: common-image-types
+        - identifier: title
+          label: Caption title
+          type: Text
+        - identifier: caption
+          label: Caption text
+          type: Textarea
+          rows: 15
+          enableRichtext: true
+        - identifier: link
+          type: Link
+          autocomplete: true
+          allowedTypes:
+            - page
+            - url
+            - file
+        - identifier: pi_flexform
+          type: FlexForm
+          label: Override general settings
+          fields:
+          - identifier: captionWidth
+            label: Caption width
+            type: Select
+            renderType: selectSingle
+            default: ''
+            items:
+              - label: 'default from Swiper settings'
+                value: ''
+              - label: 'Width 25%'
+                value: 'w-25'
+              - label: 'Width 33%'
+                value: 'w-33'
+              - label: 'Width 50%'
+                value: 'w-50'
+              - label: 'Width 75%'
+                value: 'w-75'
+              - label: 'Width 100%'
+                value: 'w-100'
+          - identifier: contentAlign
+            label: Caption align
+            type: Select
+            renderType: selectSingle
+            default: ''
+            items:
+              - label: 'default from Swiper settings'
+                value: ''
+              - label: 'left-top'
+                value: 'left-top'
+              - label: 'left-center'
+                value: 'left-center'
+              - label: 'left-bottom'
+                value: 'left-bottom'
+              - label: 'center-top'
+                value: 'center-top'
+              - label: 'center-center'
+                value: 'center-center'
+              - label: 'center-bottom'
+                value: 'center-bottom'
+              - label: 'right-top'
+                value: 'right-top'
+              - label: 'right-center'
+                value: 'right-center'
+              - label: 'right-bottom'
+                value: 'right-bottom'
