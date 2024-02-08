@@ -16,7 +16,7 @@
       ],
     "require": {
         "typo3/cms-core": "^12.4",
-        "contentblocks/content-blocks": "^0.4"
+        "contentblocks/content-blocks": "^0.5"
     },
     "autoload": {
         "psr-4": {
