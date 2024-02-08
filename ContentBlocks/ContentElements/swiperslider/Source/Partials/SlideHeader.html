@@ -1,12 +1,13 @@
 
+
 <f:if condition="{data.header_layout}">
 	<f:then>
 		<f:variable name="headerLayout" value="h{data.header_layout}" />
 		<f:variable name="subheaderLayout" value="h{data.header_layout + 2}" />
 	</f:then>
 	<f:else>
-		<f:variable name="headerLayout" value="h2" />
-		<f:variable name="subheaderLayout" value="h4" />	
+		<f:variable name="headerLayout" value="h{settings.defaultHeaderType}" />
+		<f:variable name="subheaderLayout" value="h{settings.defaultHeaderType + 2}" />	
 	</f:else>
 </f:if>
 
@@ -16,10 +17,22 @@
 </f:if>
 
 <f:if condition="{data.header_layout} != 100">
-	<f:if condition="{data.header}">
-		<{headerLayout} style="{headerPosition};"> {data.header -> f:format.raw()}</{headerLayout}>
-	</f:if>
-	<f:if condition="{data.subheader}">
-		<{subheaderLayout} style="{headerPosition};"> {data.subheader -> f:format.raw()}</{subheaderLayout}>
+	<f:if condition="{data.header_position}">
+		<f:then>
+			<f:if condition="{data.header}">
+				<{headerLayout} style="{headerPosition}"> {data.header -> f:format.raw()}</{headerLayout}>
+			</f:if>
+			<f:if condition="{data.subheader}">
+				<{subheaderLayout} style="{headerPosition}"> {data.subheader -> f:format.raw()}</{subheaderLayout}>
+			</f:if>
+		</f:then>
+		<f:else>
+			<f:if condition="{data.header}">
+				<{headerLayout}> {data.header -> f:format.raw()}</{headerLayout}>
+			</f:if>
+			<f:if condition="{data.subheader}">
+				<{subheaderLayout}> {data.subheader -> f:format.raw()}</{subheaderLayout}>
+			</f:if>
+		</f:else>
 	</f:if>
 </f:if>
