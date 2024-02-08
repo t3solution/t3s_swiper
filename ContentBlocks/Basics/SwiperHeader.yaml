@@ -2,7 +2,7 @@ identifier: T3S/SwiperHeader
 fields:
   - identifier: t3s_swiperheader_palette
     type: Palette
-    label: Headlines
+    label: LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:palette.header
     fields:
       - identifier: header
         useExistingField: true
