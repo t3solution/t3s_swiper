@@ -30,32 +30,35 @@ class DimensionsViewHelper extends AbstractViewHelper
     public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext): array
     {
         $settings = $arguments['settings'];
-        $dimensions['sliderwidth'] = !empty($settings['width']) ? (int)$settings['width'] : 1300;
-
-        if ($settings['effectType'] === 'slide' && $settings['slidesPerView'] > 1) {
-            $dimensions['width'] = (int)($dimensions['sliderwidth'] / $settings['slidesPerView']);
-        } else {
-            $dimensions['width'] = $dimensions['sliderwidth'];
-        }
-
-        if ($settings['thumbnailsSlidesPerView'] > 1) {
-            $dimensions['thumbnailwidth'] = (int)($dimensions['sliderwidth'] / $settings['thumbnailsSlidesPerView']);
-        } else {
-            $dimensions['thumbnailwidth'] = $dimensions['sliderwidth'];
-        }
-
+        $sliderwidth = !empty($settings['width']) ? (int)$settings['width'] : 1300;
+        $slidesPerView = (int)$settings['slidesPerView'];
+        $spaceBetween = (int)$settings['spaceBetween'];
         $ratio = !empty($settings['ratio']) ? $settings['ratio'] : '16:9';
 
+        $dimensions['sliderwidth'] = $sliderwidth;
+        $dimensions['width'] = $sliderwidth;
+
+        if ($settings['effectType'] === 'slide' && $slidesPerView > 1) {
+            $sliderwidth = $sliderwidth - ($slidesPerView - 1) * $spaceBetween;
+            $dimensions['width'] = ceil($sliderwidth / $slidesPerView);
+        }
+
+        $dimensions['thumbnailwidth'] = $sliderwidth;
+        if ($settings['thumbnailsSlidesPerView'] > 1) {
+            $spaceBetween = (int)$settings['thumbnailsSpaceBetween'];
+            $sliderwidth = $sliderwidth - ($settings['thumbnailsSlidesPerView'] - 1) * $spaceBetween;
+            $dimensions['thumbnailwidth'] = $sliderwidth / $settings['thumbnailsSlidesPerView'];
+        }
+
+        $ratio_multiplier = 9/16;
         if (str_contains($ratio, ':')) {
             $ratioArr = explode(':', $ratio);
             $ratio_multiplier = $ratioArr[1] / $ratioArr[0];
-        } else {
-            $ratio_multiplier = 9/16;
         }
 
-        $dimensions['sliderheight'] = (int)($dimensions['width'] * $ratio_multiplier);
-        $dimensions['height'] = (int)($dimensions['width'] * $ratio_multiplier);
-        $dimensions['thumbnailheight'] = (int)($dimensions['thumbnailwidth'] * $ratio_multiplier);
+        $dimensions['sliderheight'] = ceil($dimensions['width'] * $ratio_multiplier);
+        $dimensions['height'] = ceil($dimensions['width'] * $ratio_multiplier);
+        $dimensions['thumbnailheight'] = ceil($dimensions['thumbnailwidth'] * $ratio_multiplier);
 
         return $dimensions;
     }
