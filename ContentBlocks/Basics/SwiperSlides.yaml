@@ -48,7 +48,7 @@ fields:
             default: ''
             items:
               - label: 'default from Swiper settings'
-                value: ''
+                value: '0'
               - label: 'Width 25%'
                 value: 'w-25'
               - label: 'Width 33%'

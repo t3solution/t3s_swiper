@@ -79,7 +79,7 @@ fields:
               default: 'w-50'
               items:
                 - label: 'auto'
-                  value: ''
+                  value: 'w-0'
                 - label: 'Width 25%'
                   value: 'w-25'
                 - label: 'Width 33%'
@@ -379,8 +379,8 @@ fields:
                 - label: 'creative'
                   value: 'creative'
             - identifier: slidedirection
-              label: Direction
-              description: can be 'horizontal' or 'vertical' (for vertical slider)
+              label: Direction can be 'horizontal' or 'vertical'
+              description: only if "Slides per view" is 1 and "Effect type" is "slide"
               type: Select
               renderType: selectSingle
               default: 'horizontal'
