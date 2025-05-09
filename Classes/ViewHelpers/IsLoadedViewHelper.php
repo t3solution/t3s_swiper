@@ -11,15 +11,11 @@ declare(strict_types=1);
 
 namespace T3S\T3sSwiper\ViewHelpers;
 
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 class IsLoadedViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
-
     public function initializeArguments(): void
     {
         $this->registerArgument('extensionkey', 'string', 'Extension key', true);
@@ -28,12 +24,12 @@ class IsLoadedViewHelper extends AbstractViewHelper
     /**
      * Render the URI to the resource. The filename is used from child content.
      */
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext): bool
+    public function render(): bool
     {
-        if (ExtensionManagementUtility::isLoaded($arguments['extensionkey'])) {
+        if (ExtensionManagementUtility::isLoaded($this->arguments['extensionkey'])) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

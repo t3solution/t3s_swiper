@@ -1,10 +1,9 @@
 <html
     xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-    xmlns:cb="http://typo3.org/ns/TYPO3/CMS/ContentBlocks/ViewHelpers"
     data-namespace-typo3-fluid="true"
 >
-<f:layout name="SwiperLayout" />
-<f:section name="Swiper">
+<f:layout name="PreviewLayout" />
+<f:section name="Preview">
     <f:for each="{data.items}" as="slide" iteration="iterator">
         <div class="swiper-slide">
             <f:if condition="{slide.t3s_swiperslide}">
@@ -19,9 +18,6 @@
             </f:if>
             <f:if condition="{data.pi_flexform.useCaption} && ({slide.title} || {slide.caption})">
                 <f:render partial="SlideText" arguments="{_all}" />
-            </f:if>
-            <f:if condition="{slide.t3s_swiperslide.0} && {slide.link}">
-                <f:link.typolink parameter="{slide.link}" title="{slide.title}" class="slider-link stretched-slider-link"> </f:link.typolink>
             </f:if>
         </div>
     </f:for>

@@ -1,8 +1,3 @@
 lib.contentBlock {
-	#view {
-	#	partialRootPaths {
-	#		100 = EXT:t3s_swiper/Resources/Private/Partials/ContentElements/
-	#	}
-	#}
 	settings < lib.contentElement.settings
 }
