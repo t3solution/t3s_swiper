@@ -13,14 +13,13 @@ namespace T3S\T3sSwiper\ViewHelpers;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Page\AssetCollector;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
+use TYPO3\CMS\Core\Domain\ConsumableString;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Security\ContentSecurityPolicy\ConsumableNonce;
 
 class AssetsViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
-
     public function initializeArguments(): void
     {
         $this->registerArgument('settings', 'array', 'The slider settings.', true);
@@ -30,16 +29,18 @@ class AssetsViewHelper extends AbstractViewHelper
     /**
      * Render the URI to the resource. The filename is used from child content.
      */
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext): void
+    public function render(): void
     {
-        $uid = $arguments['uid'];
-        $settings = $arguments['settings'];
+        $uid = $this->arguments['uid'];
+        $settings = $this->arguments['settings']->toArray();
         if ($settings['effectType'] !== 'slide') {
             $settings['slidesPerView'] = 1;
             $settings['slidesPerGroup'] = 1;
             $settings['spaceBetween'] = 0;
             $settings['useBreakpoints'] = 0;
         }
+
+        $swiperId = '.swiper-'.$uid;
         $swiperIdClass = '.swiper-'.$uid;
         $js = "    // T3sSwiper (id=".$uid.") - AssetsViewHelper.php \n";
         $css = '';
@@ -53,8 +54,8 @@ class AssetsViewHelper extends AbstractViewHelper
         // Autoplay with Progress Circle
         /************************************************************************************/
         if (!empty($settings['autoplayEnable']) && !empty($settings['autoplayProgressCircle'])) {
-            $js .="    var progressCircle = document.querySelector('".$swiperIdClass." .autoplay-progress svg'); \n";
-            $js .="    var progressContent = document.querySelector('".$swiperIdClass." .autoplay-progress span'); \n";
+            $js .="    var progressCircle = document.querySelector('".$swiperId." .autoplay-progress svg'); \n";
+            $js .="    var progressContent = document.querySelector('".$swiperId." .autoplay-progress span'); \n";
         }
 
         // Initialize Thumbnails Swiper
@@ -65,7 +66,7 @@ class AssetsViewHelper extends AbstractViewHelper
 
         // Initialize Swiper
         /************************************************************************************/
-        $js .= "    var swiper".$uid." = new Swiper('".$swiperIdClass."', {";
+        $js .= "    var swiper".$uid." = new Swiper('".$swiperId."', {";
 
         // Initial Slide
         /************************************************************************************/
@@ -148,11 +149,11 @@ class AssetsViewHelper extends AbstractViewHelper
                 $js .= "effect:'".$settings['effectType']."',".$crossFade;
             }
             // Flip
-            if ($settings['effectType'] == 'flip') {
+            if ($settings['effectType'] === 'flip') {
                 $js .= "flipEffect:{slideShadows:false},";
             }
             // Creative
-            if ($settings['effectType'] == 'creative') {
+            if ($settings['effectType'] === 'creative') {
                 $js .= self::getCreativeEffect($settings, $swiperIdClass)['js'];
                 $css .= self::getCreativeEffect($settings, $swiperIdClass)['css'];
             }
@@ -225,10 +226,19 @@ class AssetsViewHelper extends AbstractViewHelper
         /************************************************************************************/
         $js .= "});";
 
+        $request = $this->getRequest($this->renderingContext);
+        /** @var ConsumableString|null $nonce */
+        $nonceAttribute = $request->getAttribute('nonce');
+
+        $nonce = '';
+        if ($nonceAttribute instanceof ConsumableNonce) {
+            $nonce = $nonceAttribute->consume();
+        }
+        
         // add assets
         /************************************************************************************/
         $assetCollector = GeneralUtility::makeInstance(AssetCollector::class);
-        $assetCollector->addInlineJavaScript('vanilla_t3s_swiper-'.$uid, $js);
+        $assetCollector->addInlineJavaScript('vanilla_t3s_swiper-'.$uid, $js, ['nonce' => $nonce]);
         if (!empty($css)) {
             $assetCollector->addInlineStyleSheet('t3s_swiper-'.$uid, $css);
         }
@@ -423,13 +433,22 @@ class AssetsViewHelper extends AbstractViewHelper
             $rgbArray['green'] = 0xFF & ($colorVal >> 0x8);
             $rgbArray['blue'] = 0xFF & $colorVal;
         } elseif (strlen($hexStr) == 3) {
-            $rgbArray['red'] = hexdec(str_repeat(substr($hexStr, 0, 1), 2));
-            $rgbArray['green'] = hexdec(str_repeat(substr($hexStr, 1, 1), 2));
-            $rgbArray['blue'] = hexdec(str_repeat(substr($hexStr, 2, 1), 2));
+            $rgbArray['red'] = hexdec(str_repeat($hexStr[0], 2));
+            $rgbArray['green'] = hexdec(str_repeat($hexStr[1], 2));
+            $rgbArray['blue'] = hexdec(str_repeat($hexStr[2], 2));
         } else {
-            return false;
+            return '';
         }
 
         return implode($seperator, $rgbArray);
     }
+    
+    private function getRequest(): ServerRequestInterface|null
+    {
+        if ($this->renderingContext->hasAttribute(ServerRequestInterface::class)) {
+            return $this->renderingContext->getAttribute(ServerRequestInterface::class);
+        }
+        return null;
+    }
+    
 }

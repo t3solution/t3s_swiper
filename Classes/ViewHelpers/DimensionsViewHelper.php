@@ -11,14 +11,10 @@ declare(strict_types=1);
 
 namespace T3S\T3sSwiper\ViewHelpers;
 
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 
 class DimensionsViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
-
     public function initializeArguments(): void
     {
         $this->registerArgument('settings', 'array', 'Swiper settings.', true);
@@ -27,9 +23,9 @@ class DimensionsViewHelper extends AbstractViewHelper
     /**
      * Render the URI to the resource. The filename is used from child content.
      */
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext): array
+    public function render(): array
     {
-        $settings = $arguments['settings'];
+        $settings = $this->arguments['settings'];
         $sliderwidth = !empty($settings['width']) ? (int)$settings['width'] : 1300;
         $slidesPerView = (int)$settings['slidesPerView'];
         $spaceBetween = (int)$settings['spaceBetween'];
@@ -62,4 +58,5 @@ class DimensionsViewHelper extends AbstractViewHelper
 
         return $dimensions;
     }
+
 }

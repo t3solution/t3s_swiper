@@ -11,12 +11,11 @@
     }],
     "keywords": [
         "TYPO3 CMS",
-        "content_blocks",
-        "Swiper"
+        "content_blocks"
       ],
     "require": {
-        "typo3/cms-core": "^12.4",
-        "contentblocks/content-blocks": "^0.6 || ^0.7"
+        "typo3/cms-core": "^13.4",
+        "friendsoftypo3/content-blocks": "^1.1"
     },
     "autoload": {
         "psr-4": {
@@ -25,7 +24,7 @@
     },
     "extra": {
         "typo3/cms": {
-            "extension-key": "t3sswiper"
+            "extension-key": "t3s_swiper"
         }
     }
 }
