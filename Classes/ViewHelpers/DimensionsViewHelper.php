@@ -25,25 +25,25 @@ class DimensionsViewHelper extends AbstractViewHelper
      */
     public function render(): array
     {
-        $settings = $this->arguments['settings'];
-        $sliderwidth = !empty($settings['width']) ? (int)$settings['width'] : 1300;
-        $slidesPerView = (int)$settings['slidesPerView'];
-        $spaceBetween = (int)$settings['spaceBetween'];
-        $ratio = !empty($settings['ratio']) ? $settings['ratio'] : '16:9';
+        $settings = $this->arguments['settings']->toArray();
+        $sliderwidth = !empty($settings['main']['width']) ? (int)$settings['main']['width'] : 1300;
+        $slidesPerView = (int)$settings['parameter']['slidesPerView'];
+        $spaceBetween = (int)$settings['parameter']['spaceBetween'];
+        $ratio = !empty($settings['main']['ratio']) ? $settings['main']['ratio'] : '16:9';
 
         $dimensions['sliderwidth'] = $sliderwidth;
         $dimensions['width'] = $sliderwidth;
 
-        if ($settings['effectType'] === 'slide' && $slidesPerView > 1) {
+        if ($settings['effects']['effectType'] === 'slide' && $slidesPerView > 1) {
             $sliderwidth = $sliderwidth - ($slidesPerView - 1) * $spaceBetween;
             $dimensions['width'] = ceil($sliderwidth / $slidesPerView);
         }
 
-        $dimensions['thumbnailwidth'] = $sliderwidth;
-        if ($settings['thumbnailsSlidesPerView'] > 1) {
-            $spaceBetween = (int)$settings['thumbnailsSpaceBetween'];
-            $sliderwidth = $sliderwidth - ($settings['thumbnailsSlidesPerView'] - 1) * $spaceBetween;
-            $dimensions['thumbnailwidth'] = $sliderwidth / $settings['thumbnailsSlidesPerView'];
+        $dimensions['thumbnails']['thumbnailwidth'] = $sliderwidth;
+        if ($settings['thumbnails']['thumbnailsSlidesPerView'] > 1) {
+            $spaceBetween = (int)$settings['thumbnails']['thumbnailsSpaceBetween'];
+            $sliderwidth = $sliderwidth - ($settings['thumbnails']['thumbnailsSlidesPerView'] - 1) * $spaceBetween;
+            $dimensions['thumbnailwidth'] = $sliderwidth / $settings['thumbnails']['thumbnailsSlidesPerView'];
         }
 
         $ratio_multiplier = 9/16;
