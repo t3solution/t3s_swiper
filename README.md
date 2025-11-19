@@ -1,9 +1,9 @@
 # TYPO3 Extension ``t3s_swiper``
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/t3sbootstrap)
-[![Latest Stable Version](https://poser.pugx.org/t3s/t3sSwiper/v/stable)](https://packagist.org/packages/t3s/t3sSwiper)
-[![Monthly Downloads](https://poser.pugx.org/t3s/t3sSwiper/d/monthly)](https://packagist.org/packages/t3s/t3sSwiper)
-[![License](https://poser.pugx.org/t3s/t3sSwiper/license)](https://packagist.org/packages/t3s/t3sSwiper)
+[![Latest Stable Version](https://poser.pugx.org/t3s/t3s-swiper/v/stable)](https://packagist.org/packages/t3s/t3s-swiper)
+[![Monthly Downloads](https://poser.pugx.org/t3s/t3s-swiper/d/monthly)](https://packagist.org/packages/t3s/t3s-swiper)
+[![License](https://poser.pugx.org/t3s/t3s-swiper/license)](https://packagist.org/packages/t3s/t3s-swiper)
 
 > This extension provides the Swiper slider and based on the extension content_blocks.
 >
@@ -13,7 +13,7 @@
 ## Requirements
 
 - TYPO3 >= 13.4
-- ext:content_blocks >= 1.1.0
+- ext:content_blocks >= 1.3.18
 
 ## Usage
 

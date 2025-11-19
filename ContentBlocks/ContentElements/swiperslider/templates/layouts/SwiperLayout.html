@@ -6,13 +6,17 @@
 	<!-- TYPO3SEARCH_end -->
 	<f:render partial="SwiperAssets" arguments="{_all}" />
 	<f:asset.css identifier="t3sSwiperFrontendCSS" href="{cb:assetPath()}/swiper-slider.css"/>
+
+<f:comment><![CDATA[
 	<f:variable name="smsResponsiveImages"><t3sswiper:isLoaded extensionkey="sms_responsive_images"/></f:variable>
+]]></f:comment>
+
 	<div id="swiper-{data.uid}" class="t3s_swiper">
 		<f:render section="Header" optional="true">
 			<f:render partial="SlideHeader" arguments="{_all}" />
 		</f:render>
 		<f:variable name="dimensions"><t3sswiper:dimensions settings="{data.pi_flexform}" /></f:variable>
-		<div id="c{data.uid}" class="swiper swiper-{data.uid}" style="max-width:{dimensions.sliderwidth}px;max-height:{dimensions.sliderheight}px">
+		<div id="c{data.uid}" class="swiper swiper-{data.uid}" style="width:{dimensions.sliderwidth}px;height:{dimensions.sliderheight}px">
 			<f:comment> Slides </f:comment>
 			<div class="swiper-wrapper">
 				<f:render section="Swiper" arguments="{_all}" />
