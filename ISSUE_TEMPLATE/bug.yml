@@ -13,8 +13,8 @@ body:
   - type: input
     id: extension-version
     attributes:
-      label: t3sbootstrap-Version
-      placeholder: z.B. 5.3.42
+      label: t3s_swiper-Version
+      placeholder: z.B. 1.0.0
     validations:
       required: true
   - type: textarea
