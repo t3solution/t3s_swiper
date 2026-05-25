@@ -21,42 +21,60 @@ class DimensionsViewHelper extends AbstractViewHelper
     }
 
     /**
-     * Render the URI to the resource. The filename is used from child content.
+     * Calculates slider and thumbnail dimensions based on configured
+     * width, slidesPerView, spaceBetween and aspect ratio.
      */
     public function render(): array
     {
         $settings = $this->arguments['settings']->toArray();
+
         $sliderwidth = !empty($settings['main']['width']) ? (int)$settings['main']['width'] : 1300;
-        $slidesPerView = (int)$settings['parameter']['slidesPerView'];
-        $spaceBetween = (int)$settings['parameter']['spaceBetween'];
-        $ratio = !empty($settings['main']['ratio']) ? $settings['main']['ratio'] : '16:9';
+        $slidesPerView = (int)($settings['parameter']['slidesPerView'] ?? 1);
+        $spaceBetween = (int)($settings['parameter']['spaceBetween'] ?? 0);
+        $ratio = !empty($settings['main']['ratio']) ? (string)$settings['main']['ratio'] : '16:9';
+        $effectType = $settings['effects']['effectType'] ?? '';
+        $thumbnailsSlidesPerView = (int)($settings['thumbnails']['thumbnailsSlidesPerView'] ?? 0);
 
-        $dimensions['sliderwidth'] = $sliderwidth;
-        $dimensions['width'] = $sliderwidth;
+        $dimensions = [
+            'sliderwidth' => $sliderwidth > 695 ? $sliderwidth : 696,
+            'width' => $sliderwidth,
+            'thumbnailwidth' => $sliderwidth,
+        ];
 
-        if ($settings['effects']['effectType'] === 'slide' && $slidesPerView > 1) {
+        // Slide effect with multiple slides per view: shrink slide width
+        if ($effectType === 'slide' && $slidesPerView > 1) {
             $sliderwidth = $sliderwidth - ($slidesPerView - 1) * $spaceBetween;
-            $dimensions['width'] = ceil($sliderwidth / $slidesPerView);
+            $sliderwidth = (int)ceil($sliderwidth / ($slidesPerView - 1));
+            $dimensions['width'] = $sliderwidth > 695 ? $sliderwidth : 696;
+        }
+        
+        if ($effectType === 'cube' || $effectType === 'cards') {
+            
+            $dimensions['width'] = $sliderwidth > 695 ? $sliderwidth : 696;
         }
 
-        $dimensions['thumbnails']['thumbnailwidth'] = $sliderwidth;
-        if ($settings['thumbnails']['thumbnailsSlidesPerView'] > 1) {
-            $spaceBetween = (int)$settings['thumbnails']['thumbnailsSpaceBetween'];
-            $sliderwidth = $sliderwidth - ($settings['thumbnails']['thumbnailsSlidesPerView'] - 1) * $spaceBetween;
-            $dimensions['thumbnailwidth'] = $sliderwidth / $settings['thumbnails']['thumbnailsSlidesPerView'];
+        // Thumbnails: shrink per-thumbnail width
+        if ($thumbnailsSlidesPerView > 1) {
+            $thumbnailsSpaceBetween = (int)($settings['thumbnails']['thumbnailsSpaceBetween'] ?? 0);
+            $thumbnailsArea = $sliderwidth - ($thumbnailsSlidesPerView - 1) * $thumbnailsSpaceBetween;
+            $dimensions['thumbnailwidth'] = (int)floor($thumbnailsArea / $thumbnailsSlidesPerView);
         }
 
-        $ratio_multiplier = 9/16;
+        // Aspect ratio (default 16:9 -> multiplier 9/16)
+        $ratioMultiplier = 9 / 16;
         if (str_contains($ratio, ':')) {
             $ratioArr = explode(':', $ratio);
-            $ratio_multiplier = $ratioArr[1] / $ratioArr[0];
+            $ratioWidth = (float)($ratioArr[0] ?? 0);
+            $ratioHeight = (float)($ratioArr[1] ?? 0);
+            if ($ratioWidth > 0) {
+                $ratioMultiplier = $ratioHeight / $ratioWidth;
+            }
         }
 
-        $dimensions['sliderheight'] = ceil($dimensions['width'] * $ratio_multiplier);
-        $dimensions['height'] = ceil($dimensions['width'] * $ratio_multiplier);
-        $dimensions['thumbnailheight'] = ceil($dimensions['thumbnailwidth'] * $ratio_multiplier);
+        $dimensions['sliderheight'] = (int)ceil($dimensions['width'] * $ratioMultiplier);
+        $dimensions['height'] = $dimensions['sliderheight'];
+        $dimensions['thumbnailheight'] = (int)ceil($dimensions['thumbnailwidth'] * $ratioMultiplier);
 
         return $dimensions;
     }
-
 }

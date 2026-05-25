@@ -14,6 +14,13 @@
 	}
 </f:asset.css>
 
+<f:if condition="{data.pi_flexform.slidedirection} == 'vertical'">
+<f:asset.css identifier="swiper_vertical_chevrons">
+	#c{data.uid} .swiper-button-next {transform: rotate(90deg);}
+	#c{data.uid} .swiper-button-prev {transform: rotate(90deg);}
+</f:asset.css>
+</f:if>
+
 <f:if condition="{data.pi_flexform.slideRows} > '1'">
 	<f:asset.script identifier="vanilla-swipergrid-{data.uid}">
 		// T3sSwiper (id={data.uid}) - Partials/SwiperAssets.html

@@ -2,7 +2,7 @@
   xmlns:t3sswiper="http://typo3.org/ns/T3S/T3sSwiper/ViewHelpers" data-namespace-typo3-fluid="true">
 <f:if condition="{data.items -> f:count()}">
 <f:spaceless>
-	Number of slider items: {data.items -> f:count()}
+	<span class="d-block mb-2">Number of slider items: {data.items -> f:count()}</span>
 	<f:if condition="{data.pi_flexform.backendView}">
 		<f:render partial="SwiperAssets" arguments="{_all}" />
 		<f:asset.css identifier="t3sSwiperPreviewCSS" href="{cb:assetPath()}/swiper-slider.css"/>

@@ -1,21 +1,10 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
-
-<f:if condition="{data.header_layout}">
-	<f:then>
-		<f:variable name="headerLayout" value="h{data.header_layout}" />
-		<f:variable name="subheaderLayout" value="h{data.header_layout + 2}" />
-	</f:then>
-	<f:else>
-		<f:variable name="headerLayout" value="h{settings.defaultHeaderType}" />
-		<f:variable name="subheaderLayout" value="h{settings.defaultHeaderType + 2}" />	
-	</f:else>
-</f:if>
-
+<f:variable name="headerLayout" value="{f:if(condition: data.header_layout, then: 'h{data.header_layout}', else: 'h2')}"/>
+<f:variable name="subheaderLayout" value="h{headerLayout + 2}" />
 <f:variable name="headerPosition" value=""/>
 <f:if condition="{data.header_position} === 'center' || {data.header_position} === 'right'}">
 	<f:variable name="headerPosition" value="text-align:{data.header_position}"/>
 </f:if>
-
 <f:if condition="{data.header_layout} != 100">
 	<f:if condition="{data.header_position}">
 		<f:then>

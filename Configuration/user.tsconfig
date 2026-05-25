@@ -1,0 +1,2 @@
+
+options.sites.hideSets := addToList(t3s/swiperslider,t3sswiper/content-blocks-bundle)
