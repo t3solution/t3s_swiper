@@ -1,1 +1,24 @@
+name: Require category label
+on:
+  issues:
+    types: [opened, labeled, unlabeled]
 
+jobs:
+  check-label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const required = ['frontend', 'backend', 'extension', 'docs'];
+            const labels = context.payload.issue.labels.map(l => l.name);
+            const hasCategory = labels.some(l => required.includes(l));
+            if (!hasCategory) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                body: '⚠️ Bitte mindestens ein Kategorie-Label setzen: ' + required.join(', ')
+              });
+              core.setFailed('Kategorie-Label fehlt');
+            }
