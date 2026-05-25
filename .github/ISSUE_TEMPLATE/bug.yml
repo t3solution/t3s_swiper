@@ -1,1 +1,32 @@
-
+name: 🐛 Bug Report
+description: Something isn't working as expected
+title: "[Bug]: "
+labels: ["🐛 bug"]
+body:
+  - type: input
+    id: typo3-version
+    attributes:
+      label: TYPO3-Version
+      placeholder: z.B. 13.4
+    validations:
+      required: true
+  - type: input
+    id: extension-version
+    attributes:
+      label: t3s_swiper-Version
+      placeholder: z.B. 0.0.8
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and how to reproduce it.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
