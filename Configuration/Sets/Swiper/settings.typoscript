@@ -1,4 +1,0 @@
-
-lib.contentBlock {
-	settings < lib.contentElement.settings
-}

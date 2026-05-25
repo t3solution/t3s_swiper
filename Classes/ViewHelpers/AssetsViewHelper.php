@@ -1,454 +1,459 @@
 <?php
-
 declare(strict_types=1);
-
-/*
- * This file is part of the TYPO3 extension t3s_swiper.
- *
- * For the full copyright and license information, please read the
- * LICENSE file that was distributed with this source code.
- */
 
 namespace T3S\T3sSwiper\ViewHelpers;
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Page\AssetCollector;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3\CMS\Core\Domain\ConsumableString;
-use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Security\ContentSecurityPolicy\ConsumableNonce;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 class AssetsViewHelper extends AbstractViewHelper
 {
+
     public function initializeArguments(): void
     {
         $this->registerArgument('settings', 'array', 'The slider settings.', true);
         $this->registerArgument('uid', 'integer', 'Slider ID');
     }
 
-    /**
-     * Render the URI to the resource. The filename is used from child content.
-     */
     public function render(): void
     {
-        $uid = $this->arguments['uid'];
+        $uid      = (int)$this->arguments['uid'];
         $settings = $this->arguments['settings']->toArray();
-        if ($settings['effects']['effectType'] !== 'slide') {
-            $settings['parameter']['slidesPerView'] = 1;
-            $settings['parameter']['slidesPerGroup'] = 1;
-            $settings['parameter']['spaceBetween'] = 0;
-            $settings['breakpoints']['useBreakpoints'] = 0;
+        $settings = $this->normalizeSettings($settings);
+
+        $swiperId = '.swiper-' . $uid;
+        $js       = "    // T3sSwiper (id={$uid}) - AssetsViewHelper.php\n";
+        $css      = '';
+        $loop     = true;
+
+        $css .= self::setGlobalSwiperVariables($settings, $swiperId);
+
+        if (!empty($settings['autoplay']['autoplayEnable'])
+            && !empty($settings['autoplay']['autoplayProgressCircle'])
+        ) {
+            $js .= "    var progressCircle = document.querySelector('{$swiperId} .autoplay-progress svg');\n";
+            $js .= "    var progressContent = document.querySelector('{$swiperId} .autoplay-progress span');\n";
         }
 
-        $swiperId = '.swiper-'.$uid;
-        $swiperIdClass = '.swiper-'.$uid;
-        $js = "    // T3sSwiper (id=".$uid.") - AssetsViewHelper.php \n";
-        $css = '';
-        $loop = true;
-
-        // Set global CSS variables
-        /************************************************************************************/
-        $css .= self::setGlobalSwiperVariables($settings, $swiperIdClass);
-
-
-        // Autoplay with Progress Circle
-        /************************************************************************************/
-        if (!empty($settings['autoplay']['autoplayEnable']) && !empty($settings['autoplay']['autoplayProgressCircle'])) {
-            $js .="    var progressCircle = document.querySelector('".$swiperId." .autoplay-progress svg'); \n";
-            $js .="    var progressContent = document.querySelector('".$swiperId." .autoplay-progress span'); \n";
-        }
-
-        // Initialize Thumbnails Swiper
-        /************************************************************************************/
         if (!empty($settings['thumbnails']['thumbnailsEnable'])) {
             $js .= self::initThumbnailsSwiper($settings, $uid);
         }
 
-        // Initialize Swiper
-        /************************************************************************************/
-        $js .= "    var swiper".$uid." = new Swiper('".$swiperId."', {";
+        $js .= "    var swiper{$uid} = new Swiper('{$swiperId}', {";
 
-        // Initial Slide
-        /************************************************************************************/
-        if (!empty($settings['parameter']['initialSlide'])) {
-            $js .= "initialSlide:".$settings['parameter']['initialSlide'].",";
-        }
+        $js .= $this->buildInitialSlide($settings);
+        $js .= $this->buildSpeed($settings);
+        $js .= $this->buildGrabCursor($settings);
+        $js .= $this->buildDirection($settings);
 
-        // Speed
-        /************************************************************************************/
-        if (!empty($settings['parameter']['speed']) && $settings['parameter']['speed'] !== '300') {
-            $js .= "speed:".$settings['parameter']['speed'].",";
-        }
+        [$rowsJs, $rowsCss, $loop] = $this->buildSlideRows($settings, $swiperId);
+        $js  .= $rowsJs;
+        $css .= $rowsCss;
 
-        // Grab Cursor
-        /************************************************************************************/
-        if (!empty($settings['parameter']['grabCursor'])) {
-            $js .= "grabCursor:true,";
-        }
+        $js .= $this->buildCenteredSlides($settings);
 
-        // Direction
-        /************************************************************************************/
-        if (!empty($settings['effects']['slidedirection']) && $settings['effects']['slidedirection'] === 'vertical') {
-            $js .= "direction:'vertical',";
-            $js .= "autoHeight:true,";
-        }
+        [$autoplayJs, $autoplayCss] = $this->buildAutoplay($settings, $swiperId);
+        $js  .= $autoplayJs;
+        $css .= $autoplayCss;
 
-        // Slide Rows
-        /************************************************************************************/
-        if (!empty($settings['effects']['slideRows']) && (int)$settings['effects']['slideRows'] > 1) {
-            // rows > 1 is currently not compatible with loop mode (loop: true)
-            $loop = false;
-            $js .= "grid:{rows:".(int)$settings['effects']['slideRows'].",},";
-            if (!empty($settings['parameter']['spaceBetween'])) {
-                $spaceAmount = (int)$settings['effects']['slideRows'] - 1;
-                $spaceBetween = (int)$settings['parameter']['spaceBetween'] * $spaceAmount.'px';
-                $css .= $swiperIdClass." .swiper-slide {height:calc((100% - ".$spaceBetween.") / ".(int)$settings['effects']['slideRows'].' ) !important;';
-            } else {
-                $css .= $swiperIdClass." .swiper-slide {height:calc(100% / ".(int)$settings['effects']['slideRows'].' ) !important;';
-            }
-            $settings['breakpoints']['useBreakpoints'] = 0;
-        }
+        $js .= $this->buildKeyboard($settings);
 
-        // Centered Slide
-        /************************************************************************************/
-        if (!empty($settings['parameter']['centeredSlides'])) {
-            $js .= "centeredSlides:true,";
-        }
+        [$effectJs, $effectCss] = $this->buildEffects($settings, $swiperId);
+        $js  .= $effectJs;
+        $css .= $effectCss;
 
-        // Autoplay
-        /************************************************************************************/
-        if (!empty($settings['autoplay']['autoplayEnable'])) {
-            $delay = !empty($settings['autoplay']['autoplayDelay']) ? $settings['autoplay']['autoplayDelay'] : 3000;
-            $disableOnInteraction = empty($settings['autoplay']['autoplayDisableOnInteraction']) ? 'disableOnInteraction:false,' : '';
-            $pauseOnMouseEnter = !empty($settings['autoplay']['autoplayPauseOnMouseEnter']) ? 'pauseOnMouseEnter:true' : '';
-            $js .= "autoplay:{delay:".$delay.",".$disableOnInteraction.$pauseOnMouseEnter."},";
-            if (!empty($settings['autoplay']['autoplayProgressCircle'])) {
-                $js .= ' on: {autoplayTimeLeft(s, time, progress) {progressCircle.style.setProperty("--progress", 1 - progress);progressContent.textContent = `${Math.ceil(time / 1000)}s`;}},';
-                $css .= $swiperIdClass.' .autoplay-progress{position:absolute;right:16px;bottom:16px;z-index:10;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--swiper-theme-color)}'. $swiperIdClass.' .autoplay-progress svg{--progress:0;position:absolute;left:0;top:0;z-index:10;width:100%;height:100%;stroke-width:4px;stroke:var(--swiper-theme-color);fill:none;stroke-dashoffset:calc(125.6 * (1 - var(--progress)));stroke-dasharray:125.6;transform:rotate(-90deg)}';
-            }
-        }
+        $js .= $this->buildScrollbar($settings);
 
-        // Keyboard
-        /************************************************************************************/
-        if (!empty($settings['navigation']['keyboardEnable']) && (int)$settings['effects']['slideRows'] < 2) {
-            $js .= "keyboard:{enabled: true,},";
-        }
-
-        // Effects
-        /************************************************************************************/
-        if (!empty($settings['effects']['effectType'])) {
-            $crossFade = '';
-            // Fade
-            if ($settings['effects']['effectType'] === 'fade') {
-                # flexform option is missing
-                $crossFade = 'fadeEffect: {crossFade: true},';
-                # Note that crossFade should be set to true in order to avoid seeing content behind or underneath.
-            }
-            // Slide - default
-            if ($settings['effects']['effectType'] !== 'slide') {
-                $js .= "effect:'".$settings['effects']['effectType']."',".$crossFade;
-            }
-            // Flip
-            if ($settings['effects']['effectType'] === 'flip') {
-                $js .= "flipEffect:{slideShadows:false},";
-            }
-            // Creative
-            if ($settings['effects']['effectType'] === 'creative') {
-                $js .= self::getCreativeEffect($settings, $swiperIdClass)['js'];
-                $css .= self::getCreativeEffect($settings, $swiperIdClass)['css'];
-            }
-        }
-
-        // Scrollbar
-        /************************************************************************************/
-        if (!empty($settings['navigation']['scrollbarEnable'])) {
-            $js .= "scrollbar:{el:'.swiper-scrollbar', draggable:true,},";
-        }
-
-        // Pagination
-        /************************************************************************************/
         if (!empty($settings['pagination']['paginationEnable'])) {
-            $js .= self::getPaginationAssets($uid, $settings, $swiperIdClass)['js'];
-            $css .= self::getPaginationAssets($uid, $settings, $swiperIdClass)['css'];
+            $pagination = self::getPaginationAssets($uid, $settings, $swiperId);
+            $js  .= $pagination['js'];
+            $css .= $pagination['css'];
         }
 
-        // Navigation
-        /************************************************************************************/
         if (!empty($settings['navigation']['navigationEnable'])) {
-            $js .= self::getNavigationAssets($settings, $swiperIdClass)['js'];
-            $css .= self::getNavigationAssets($settings, $swiperIdClass)['css'];
+            $navigation = self::getNavigationAssets($settings, $swiperId);
+            $js  .= $navigation['js'];
+            $css .= $navigation['css'];
         }
 
-        // Breakpoints
-        /************************************************************************************/
-        if (!empty($settings['breakpoints']['useBreakpoints']) && $settings['effects']['effectType'] === 'slide') {
-            $js .= self::getBreakpointsAssets($settings, $swiperIdClass)['js'];
-            $css .= self::getBreakpointsAssets($settings, $swiperIdClass)['css'];
+        if (!empty($settings['breakpoints']['useBreakpoints'])
+            && $settings['effects']['effectType'] === 'slide'
+        ) {
+            $breakpoints = self::getBreakpointsAssets($settings, $swiperId);
+            $js  .= $breakpoints['js'];
+            $css .= $breakpoints['css'];
         } else {
             if ($settings['parameter']['slidesPerView'] > 1) {
-                $js .= "slidesPerView:". $settings['parameter']['slidesPerView'].",";
+                $js .= 'slidesPerView:' . $settings['parameter']['slidesPerView'] . ',';
             }
-            if (!empty($settings['parameter']['slidesPerGroup']) && $settings['parameter']['slidesPerGroup'] > 1) {
-                $js .= "slidesPerGroup:". $settings['parameter']['slidesPerGroup'].",";
+            if (!empty($settings['parameter']['slidesPerGroup'])
+                && $settings['parameter']['slidesPerGroup'] > 1
+            ) {
+                $js .= 'slidesPerGroup:' . $settings['parameter']['slidesPerGroup'] . ',';
             }
         }
 
-        // Space Between
-        /************************************************************************************/
         if (!empty($settings['parameter']['spaceBetween'])) {
-            $js .= "spaceBetween:". $settings['parameter']['spaceBetween'].",";
+            $js .= 'spaceBetween:' . $settings['parameter']['spaceBetween'] . ',';
         }
 
-        // Thumbnails
-        /************************************************************************************/
         if (!empty($settings['thumbnails']['thumbnailsEnable'])) {
-            $js .= "thumbs:{swiper:swiperThumb".$uid.",},";
+            $js .= "thumbs:{swiper:swiperThumb{$uid},},";
         }
 
-        // Loop
-        /************************************************************************************/
         if (!empty($loop) && !empty($settings['parameter']['loop'])) {
-            $js .= "loop:true,";
+            $js .= 'loop:true,';
         }
 
-        // Custom
-        /************************************************************************************/
         if (!empty($settings['customscript']['customScript'])) {
             $js .= trim($settings['customscript']['customScript']);
         }
-
         if (!empty($settings['customscript']['customCss'])) {
-            //$js .= preg_replace("/\s+/", "", $settings['customCss']);
             $css .= trim($settings['customscript']['customCss']);
         }
 
-        // CLOSE Initialize Swiper
-        /************************************************************************************/
-        $js .= "});";
+        $js .= '});';
 
-        $request = $this->getRequest($this->renderingContext);
-        /** @var ConsumableString|null $nonce */
-        $nonceAttribute = $request->getAttribute('nonce');
 
-        $nonce = '';
-        if ($nonceAttribute instanceof ConsumableNonce) {
-            $nonce = $nonceAttribute->consume();
+        if ( $settings['effects']['slidedirection'] === 'vertical' ) {
+            $ratio = str_replace(':', '/', $settings['main']['ratio']);
+            $css .= '.swiper-vertical{width:100%;aspect-ratio:'.$ratio.';height:auto;max-height:none!important;overflow:hidden}.swiper-vertical .swiper-slide{height:100%!important;width:100%}.swiper-vertical .swiper-slide-image{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:cover;display:block}';
         }
         
-        // add assets
-        /************************************************************************************/
+        if ( $settings['effects']['effectType'] === 'cube' || $settings['effects']['effectType'] === 'cards' ) {
+            $css .= '@media (max-width: 992px){.swiper.swiper-cards{max-width:calc(100vw - 100px)!important;margin:0 auto}.swiper.swiper-cube{max-width:calc(100vw - 100px)!important;margin:0 auto}#swiper-2334,#swiper-2335{overflow-x:hidden!important}}';
+        }
+
+        $nonce = $this->resolveNonce();
         $assetCollector = GeneralUtility::makeInstance(AssetCollector::class);
-        $assetCollector->addInlineJavaScript('vanilla_t3s_swiper-'.$uid, $js, ['nonce' => $nonce]);
+        $assetCollector->addInlineJavaScript(
+            'vanilla_t3s_swiper-' . $uid, $js, ['nonce' => $nonce]
+        );
         if (!empty($css)) {
-            $assetCollector->addInlineStyleSheet('t3s_swiper-'.$uid, $css);
+            $assetCollector->addInlineStyleSheet('t3s_swiper-' . $uid, $css);
         }
     }
 
+    // ─── Settings normalisieren ───────────────────────────────────────────────
 
-    /**
-    * Get navigation
-    */
-    protected static function getNavigationAssets(array $settings, string $swiperIdClass): array
+    private function normalizeSettings(array $settings): array
     {
-        $navigationAssets = [];
-        $navigationAssets['js'] = '';
-        $navigationAssets['css'] = '';
-
-        $navigationAssets['js'] .= "navigation:{nextEl:'.swiper-button-next', prevEl:'.swiper-button-prev',},";
-        if (!empty($settings['main']['themeColor'])) {
-            $navigationAssets['css'] .= $swiperIdClass.' .swiper-button-next, '.$swiperIdClass.' .swiper-button-prev {color: '.$settings['main']['themeColor'].'}';
+        if ($settings['effects']['effectType'] !== 'slide') {
+            $settings['parameter']['slidesPerView']        = 1;
+            $settings['parameter']['slidesPerGroup']       = 1;
+            $settings['parameter']['spaceBetween']         = 0;
+            $settings['breakpoints']['useBreakpoints']     = 0;
         }
 
-        return $navigationAssets;
+        return $settings;
     }
 
+    // ─── JS-Bausteine ─────────────────────────────────────────────────────────
+
+    private function buildInitialSlide(array $settings): string
+    {
+        return !empty($settings['parameter']['initialSlide'])
+            ? 'initialSlide:' . $settings['parameter']['initialSlide'] . ','
+            : '';
+    }
+
+    private function buildSpeed(array $settings): string
+    {
+        return (!empty($settings['parameter']['speed']) && $settings['parameter']['speed'] !== '300')
+            ? 'speed:' . $settings['parameter']['speed'] . ','
+            : '';
+    }
+
+    private function buildGrabCursor(array $settings): string
+    {
+        return !empty($settings['parameter']['grabCursor']) ? 'grabCursor:true,' : '';
+    }
+
+    private function buildDirection(array $settings): string
+    {
+        return (!empty($settings['effects']['slidedirection'])
+            && $settings['effects']['slidedirection'] === 'vertical')
+            ? "direction:'vertical',"
+            : '';
+    }
+
+    private function buildCenteredSlides(array $settings): string
+    {
+        return !empty($settings['parameter']['centeredSlides']) ? 'centeredSlides:true,' : '';
+    }
+
+    private function buildScrollbar(array $settings): string
+    {
+        return !empty($settings['navigation']['scrollbarEnable'])
+            ? "scrollbar:{el:'.swiper-scrollbar',draggable:true,},"
+            : '';
+    }
+
+    private function buildKeyboard(array $settings): string
+    {
+        return (!empty($settings['navigation']['keyboardEnable'])
+            && (int)($settings['effects']['slideRows'] ?? 0) < 2)
+            ? 'keyboard:{enabled:true,},'
+            : '';
+    }
 
     /**
-    * Get pagination
-    */
-    protected static function getPaginationAssets(int $uid, array $settings, string $swiperIdClass): array
+     * @return array{0: string, 1: string, 2: bool}  [js, css, loop]
+     */
+    private function buildSlideRows(array $settings, string $swiperId): array
     {
-        $paginationAssets = [];
-        $paginationAssets['js'] = '';
-        $paginationAssets['css'] = '';
+        $rows = (int)($settings['effects']['slideRows'] ?? 0);
+        if ($rows <= 1) {
+            return ['', '', true];
+        }
+
+        $js   = "grid:{rows:{$rows},},";
+        $space = !empty($settings['parameter']['spaceBetween'])
+            ? ((int)$settings['parameter']['spaceBetween'] * ($rows - 1)) . 'px'
+            : '0px';
+        $css  = $space !== '0px'
+            ? "{$swiperId} .swiper-slide {height:calc((100% - {$space}) / {$rows}) !important;"
+            : "{$swiperId} .swiper-slide {height:calc(100% / {$rows}) !important;";
+
+        return [$js, $css, false];
+    }
+
+    /**
+     * @return array{0: string, 1: string}  [js, css]
+     */
+    private function buildAutoplay(array $settings, string $swiperId): array
+    {
+        if (empty($settings['autoplay']['autoplayEnable'])) {
+            return ['', ''];
+        }
+
+        $delay                = $settings['autoplay']['autoplayDelay'] ?? 3000;
+        $disableOnInteraction = empty($settings['autoplay']['autoplayDisableOnInteraction'])
+            ? 'disableOnInteraction:false,' : '';
+        $pauseOnMouseEnter    = !empty($settings['autoplay']['autoplayPauseOnMouseEnter'])
+            ? 'pauseOnMouseEnter:true' : '';
+
+        $js  = "autoplay:{delay:{$delay},{$disableOnInteraction}{$pauseOnMouseEnter}},";
+        $css = '';
+
+        if (!empty($settings['autoplay']['autoplayProgressCircle'])) {
+            $js  .= ' on: {autoplayTimeLeft(s, time, progress) {'
+                . 'progressCircle.style.setProperty("--progress", 1 - progress);'
+                . 'progressContent.textContent = `${Math.ceil(time / 1000)}s`;}},';
+            $css .= $swiperId . ' .autoplay-progress{position:absolute;right:16px;bottom:16px;'
+                . 'z-index:10;width:48px;height:48px;display:flex;align-items:center;'
+                . 'justify-content:center;font-weight:700;color:var(--swiper-theme-color)}'
+                . $swiperId . ' .autoplay-progress svg{--progress:0;position:absolute;left:0;'
+                . 'top:0;z-index:10;width:100%;height:100%;stroke-width:4px;'
+                . 'stroke:var(--swiper-theme-color);fill:none;'
+                . 'stroke-dashoffset:calc(125.6 * (1 - var(--progress)));'
+                . 'stroke-dasharray:125.6;transform:rotate(-90deg)}';
+        }
+
+        return [$js, $css];
+    }
+
+    /**
+     * @return array{0: string, 1: string}  [js, css]
+     */
+    private function buildEffects(array $settings, string $swiperId): array
+    {
+        if (empty($settings['effects']['effectType'])) {
+            return ['', ''];
+        }
+
+        $effectType = $settings['effects']['effectType'];
+        $js         = '';
+        $css        = '';
+
+        if ($effectType !== 'slide') {
+            $crossFade = $effectType === 'fade' ? 'fadeEffect:{crossFade:true},' : '';
+            $js .= "effect:'{$effectType}',{$crossFade}";
+        }
+
+        if ($effectType === 'flip') {
+            $js .= 'flipEffect:{slideShadows:false},';
+        }
+
+        if ($effectType === 'creative') {
+            $creative = self::getCreativeEffect($settings, $swiperId);
+            $js      .= $creative['js'];
+            $css     .= $creative['css'];
+        }
+
+        return [$js, $css];
+    }
+
+    // ─── Nonce ────────────────────────────────────────────────────────────────
+
+    private function resolveNonce(): string
+    {
+        $request = $this->getRequest();
+        if ($request === null) {
+            return '';
+        }
+
+        $nonce = $request->getAttribute('nonce');
+
+        return $nonce instanceof ConsumableNonce ? $nonce->consume() : '';
+    }
+
+    private function getRequest(): ?ServerRequestInterface
+    {
+        if ($this->renderingContext->hasAttribute(ServerRequestInterface::class)) {
+            return $this->renderingContext->getAttribute(ServerRequestInterface::class);
+        }
+
+        return null;
+    }
+
+    // ─── Static Helpers ───────────────────────────────────────────────────────
+
+    protected static function getNavigationAssets(array $settings, string $swiperId): array
+    {
+        $js  = "navigation:{nextEl:'.swiper-button-next',prevEl:'.swiper-button-prev',},";
+        $css = !empty($settings['main']['themeColor'])
+            ? "{$swiperId} .swiper-button-next, {$swiperId} .swiper-button-prev"
+              . " {color:{$settings['main']['themeColor']}}"
+            : '';
+
+        return ['js' => $js, 'css' => $css];
+    }
+
+    protected static function getPaginationAssets(int $uid, array $settings, string $swiperId): array
+    {
+        $type          = '';
+        $clickable     = '';
         $dynamicBullets = '';
-        $clickable = '';
-        $type = '';
 
         if ($settings['pagination']['paginationType'] === 'bullets') {
-            $clickable = !empty($settings['pagination']['paginationClickable']) ? 'clickable:true,' : '';
-            if (!empty($settings['pagination']['paginationDynamicBullets'])) {
-                $dynamicBullets = 'dynamicBullets:true';
-            }
+            $clickable      = !empty($settings['pagination']['paginationClickable']) ? 'clickable:true,' : '';
+            $dynamicBullets = !empty($settings['pagination']['paginationDynamicBullets']) ? 'dynamicBullets:true' : '';
         } else {
-            $type = 'type:\''.$settings['pagination']['paginationType'].'\',';
+            $type = "type:'{$settings['pagination']['paginationType']}',";
         }
-        $paginationAssets['js'] .= "pagination:{el:'.swiper-pagination',".$type.$clickable.$dynamicBullets."},";
 
-        return $paginationAssets;
+        return [
+            'js'  => "pagination:{el:'.swiper-pagination',{$type}{$clickable}{$dynamicBullets}},",
+            'css' => '',
+        ];
     }
 
-
-    /**
-    * Get Creative Effect
-    */
-    protected static function getCreativeEffect(array $settings, string $swiperIdClass): array
+    protected static function getCreativeEffect(array $settings, string $swiperId): array
     {
-        $creativAssets = [];
-        $creativAssets['js'] = '';
-        $creativAssets['css'] = '';
+        $preset = $settings['effects']['creativePresets'] ?? '';
 
-        if (!empty($settings['effects']['creativePresets']) && $settings['effects']['creativePresets'] === '1') {
-            $creativAssets['js'] .= "creativeEffect: {prev: {shadow: true,translate: [0, 0, -400],},next: {translate: ['100%', 0, 0],},},";
-        }
-        if (!empty($settings['effects']['creativePresets']) && $settings['effects']['creativePresets'] === '2') {
-            $creativAssets['js'] .= "creativeEffect: {prev: {shadow: true,translate: ['-120%', 0, -500],},next: {shadow: true,translate: ['120%', 0, -500],},},";
-        }
-        if (!empty($settings['effects']['creativePresets']) && $settings['effects']['creativePresets'] === '3') {
-            $creativAssets['js'] .= "creativeEffect: {prev: {shadow: true,translate: ['-20%', 0, -1],},next: {translate: ['100%', 0, 0],},},";
-        }
-        if (!empty($settings['effects']['creativePresets']) && $settings['effects']['creativePresets'] === '4') {
-            $creativAssets['js'] .= "creativeEffect: {prev: {shadow: true,translate: [0, 0, -800],rotate: [180, 0, 0],},next: {shadow: true,translate: [0, 0, -800],rotate: [-180, 0, 0],},},";
-        }
-        if (!empty($settings['effects']['creativePresets']) && $settings['effects']['creativePresets'] === '5') {
-            $creativAssets['js'] .= "creativeEffect: {prev: {shadow: true,translate: ['-125%', 0, -800],rotate: [0, 0, -90],},next: {shadow: true,translate: ['125%', 0, -800],rotate: [0, 0, 90],},},";
-        }
-        if (!empty($settings['effects']['creativePresets']) && $settings['effects']['creativePresets'] === '6') {
-            $creativAssets['js'] .= "creativeEffect: {prev: {shadow: true,origin: 'left center',translate: ['-5%', 0, -200],rotate: [0, 100, 0],},next: {origin: 'right center',translate: ['5%', 0, -200],rotate: [0, -100, 0],},},";
-        }
+        $js = match ($preset) {
+            '1' => "creativeEffect:{prev:{shadow:true,translate:[0,0,-400],},next:{translate:['100%',0,0],},},",
+            '2' => "creativeEffect:{prev:{shadow:true,translate:['-120%',0,-500],},next:{shadow:true,translate:['120%',0,-500],},},",
+            '3' => "creativeEffect:{prev:{shadow:true,translate:['-20%',0,-1],},next:{translate:['100%',0,0],},},",
+            '4' => "creativeEffect:{prev:{shadow:true,translate:[0,0,-800],rotate:[180,0,0],},next:{shadow:true,translate:[0,0,-800],rotate:[-180,0,0],},},",
+            '5' => "creativeEffect:{prev:{shadow:true,translate:['-125%',0,-800],rotate:[0,0,-90],},next:{shadow:true,translate:['125%',0,-800],rotate:[0,0,90],},},",
+            '6' => "creativeEffect:{prev:{shadow:true,origin:'left center',translate:['-5%',0,-200],rotate:[0,100,0],},next:{origin:'right center',translate:['5%',0,-200],rotate:[0,-100,0],},},",
+            default => '',
+        };
 
-        return $creativAssets;
+        return ['js' => $js, 'css' => ''];
     }
 
-
-    /**
-    * Get breakpoints
-    */
-    protected static function getBreakpointsAssets(array $settings, string $swiperIdClass): array
+    protected static function getBreakpointsAssets(array $settings, string $swiperId): array
     {
-        $breakpointsAssets = [];
-        $breakpointsAssets['js'] = '';
-        $breakpointsAssets['css'] = '';
         $breakpoints = [];
-        $keyArr = [];
-
-        foreach ($settings['breakpoints'] as $key=>$setting) {
+        foreach ($settings['breakpoints'] as $key => $setting) {
             if (str_starts_with($key, 'bp_')) {
                 $breakpoints[substr($key, 3)] = $setting;
             }
         }
 
-        $breakpointsAssets['js'] .= 'breakpoints: {';
-        $i = 1;
-        foreach ($breakpoints as $key=>$breakpoint) {
-            $keyArr = explode('_', $key);
-            if ($i === 3) {
-                $i = 1;
-            }
-            $slidesPerView = $settings['breakpoints']['bp_'.$keyArr[0].'_slidesPerView'];
-            $slidesPerGroup = $settings['breakpoints']['bp_'.$keyArr[0].'_slidesPerGroup'];
-            if ($i === 1) {
-                $breakpointsAssets['js'] .= $keyArr[0].":{";
-                $breakpointsAssets['js'] .= "slidesPerView:".$slidesPerView.", slidesPerGroup:".$slidesPerGroup.",";
-            }
-            if ($i === 2) {
-                $breakpointsAssets['js'] .= "},";
-            }
-            $i++;
-        }
-        $breakpointsAssets['js'] .= '},';
+        $js      = 'breakpoints:{';
+        $current = null;
 
-        return $breakpointsAssets;
+        foreach ($breakpoints as $key => $breakpoint) {
+            $parts = explode('_', $key);
+            $px    = $parts[0];
+            $field = $parts[1] ?? '';
+
+            if ($field === 'slidesPerView') {
+                $current = $px;
+                $spv     = $settings['breakpoints']['bp_' . $px . '_slidesPerView'];
+                $spg     = $settings['breakpoints']['bp_' . $px . '_slidesPerGroup'];
+                $js     .= "{$px}:{slidesPerView:{$spv},slidesPerGroup:{$spg},},";
+            }
+        }
+
+        $js .= '},';
+
+        return ['js' => $js, 'css' => ''];
     }
 
-
-    /**
-     * generate CSS
-     */
-    protected static function setGlobalSwiperVariables(array $settings, string $swiperIdClass): string
+    protected static function setGlobalSwiperVariables(array $settings, string $swiperId): string
     {
-        $css = '';
         $themeColor = '';
 
         if (!empty($settings['main']['themeColor'])) {
-            $themeColor .= '--swiper-theme-color: '.$settings['main']['themeColor'].';';
-            $themeColorOpacity = !empty($settings['main']['themeColorOpacity']) ? $settings['main']['themeColorOpacity'] : '0.4';
-            $themeColor .= '--swiper-pagination-progressbar-bg-color: rgba('.self::hex2RGB($settings['main']['themeColor']).','.$themeColorOpacity.');';
-            $themeColor .= '--swiper-pagination-bullet-color:'.$settings['main']['themeColor'].';';
-            $themeColor .= '--swiper-pagination-bullet-inactive-color:'.$settings['main']['themeColor'].';';
-            $themeColor .= '--swiper-pagination-bullet-inactive-opacity:'.$themeColorOpacity.';';
-            $themeColor .= '--swiper-pagination-fraction-color:'.$settings['main']['themeColor'].';';
-            $themeColor .= '--swiper-scrollbar-drag-bg-color: rgba('.self::hex2RGB($settings['main']['themeColor']).','.$themeColorOpacity.');';
+            $color   = $settings['main']['themeColor'];
+            $opacity = $settings['main']['themeColorOpacity'] ?? '0.4';
+            $rgb     = self::hex2RGB($color);
+
+            $themeColor  = "--swiper-theme-color:{$color};";
+            $themeColor .= "--swiper-pagination-progressbar-bg-color:rgba({$rgb},{$opacity});";
+            $themeColor .= "--swiper-pagination-bullet-color:{$color};";
+            $themeColor .= "--swiper-pagination-bullet-inactive-color:{$color};";
+            $themeColor .= "--swiper-pagination-bullet-inactive-opacity:{$opacity};";
+            $themeColor .= "--swiper-pagination-fraction-color:{$color};";
+            $themeColor .= "--swiper-scrollbar-drag-bg-color:rgba({$rgb},{$opacity});";
         }
 
-        $css .= ':root {'.$themeColor.'}';
-        if (!empty($settings['caption']["disableCaption"])) {
-            $mediaQuery = $settings['caption']["disableCaption"];
-            $css .= '@media (max-width: '.$mediaQuery.'px){'.$swiperIdClass.' .swiper-slide-content{display:none !important}}';
+        $css = ":root {{$themeColor}}";
+
+        if (!empty($settings['caption']['disableCaption'])) {
+            $mq   = $settings['caption']['disableCaption'];
+            $css .= "@media (max-width:{$mq}px){{$swiperId} .swiper-slide-content{display:none !important}}";
         }
 
         return $css;
     }
 
-
-    /**
-     * initialize ThumbnailsSwiper
-     */
     protected static function initThumbnailsSwiper(array $settings, int $uid): string
     {
-        $js = '';
+        $loop          = !empty($settings['parameter']['loop']) ? 'loop:true,' : '';
+        $spaceBetween  = !empty($settings['parameter']['thumbnailsSpaceBetween'])
+            ? 'spaceBetween:' . (int)$settings['parameter']['thumbnailsSpaceBetween'] . ','
+            : '';
+        $slidesPerView = !empty($settings['parameter']['thumbnailsSlidesPerView'])
+            ? 'slidesPerView:' . (int)$settings['parameter']['thumbnailsSlidesPerView'] . ','
+            : '';
 
-        $thumbloop = '';
-        if (!empty($settings['parameter']['loop'])) {
-            $thumbloop = 'loop:true,';
-        }
-        $js .= "    var swiperThumb".$uid." = new Swiper('.swiper-thumb-".$uid."', {";
-
-        $spaceBetween = '';
-        if (!empty($settings['parameter']['thumbnailsSpaceBetween'])) {
-            $spaceBetween = 'spaceBetween:'.(int)$settings['parameter']['thumbnailsSpaceBetween'].',';
-        }
-        $slidesPerView = '';
-        if (!empty($settings['parameter']['thumbnailsSlidesPerView'])) {
-            $slidesPerView = 'slidesPerView:'. (int)$settings['parameter']['thumbnailsSlidesPerView'].',';
-        }
-
-        $js .= $thumbloop.$spaceBetween.$slidesPerView."freeMode:true,watchSlidesProgress: true,";
-        $js .= "}); \n";
-
-        return $js;
+        return "    var swiperThumb{$uid} = new Swiper('.swiper-thumb-{$uid}', {"
+            . "{$loop}{$spaceBetween}{$slidesPerView}freeMode:true,watchSlidesProgress:true,"
+            . "});\n";
     }
 
-
-    /**
-    * Convert a hexa decimal color code to its RGB equivalent
-    */
-    protected static function hex2RGB(string $hexStr, string $seperator = ','): string
+    protected static function hex2RGB(string $hexStr, string $separator = ','): string
     {
-        $hexStr = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr);
-        $rgbArray = array();
-        if (strlen($hexStr) == 6) {
-            $colorVal = hexdec($hexStr);
-            $rgbArray['red'] = 0xFF & ($colorVal >> 0x10);
-            $rgbArray['green'] = 0xFF & ($colorVal >> 0x8);
-            $rgbArray['blue'] = 0xFF & $colorVal;
-        } elseif (strlen($hexStr) == 3) {
-            $rgbArray['red'] = hexdec(str_repeat($hexStr[0], 2));
-            $rgbArray['green'] = hexdec(str_repeat($hexStr[1], 2));
-            $rgbArray['blue'] = hexdec(str_repeat($hexStr[2], 2));
-        } else {
-            return '';
+        $hexStr = preg_replace('/[^0-9A-Fa-f]/', '', $hexStr);
+        $len    = strlen($hexStr);
+
+        if ($len === 6) {
+            $val = hexdec($hexStr);
+            return implode($separator, [
+                0xFF & ($val >> 0x10),
+                0xFF & ($val >> 0x8),
+                0xFF & $val,
+            ]);
         }
 
-        return implode($seperator, $rgbArray);
-    }
-    
-    private function getRequest(): ServerRequestInterface|null
-    {
-        if ($this->renderingContext->hasAttribute(ServerRequestInterface::class)) {
-            return $this->renderingContext->getAttribute(ServerRequestInterface::class);
+        if ($len === 3) {
+            return implode($separator, [
+                hexdec(str_repeat($hexStr[0], 2)),
+                hexdec(str_repeat($hexStr[1], 2)),
+                hexdec(str_repeat($hexStr[2], 2)),
+            ]);
         }
-        return null;
+
+        return '';
     }
-    
 }

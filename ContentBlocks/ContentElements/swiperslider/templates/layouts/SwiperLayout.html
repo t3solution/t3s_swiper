@@ -1,63 +1,59 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
   xmlns:t3sswiper="http://typo3.org/ns/T3S/T3sSwiper/ViewHelpers" data-namespace-typo3-fluid="true">
-
 <f:if condition="{data.items -> f:count()}">
 	<f:spaceless>
 	<!-- TYPO3SEARCH_end -->
 	<f:render partial="SwiperAssets" arguments="{_all}" />
 	<f:asset.css identifier="t3sSwiperFrontendCSS" href="{cb:assetPath()}/swiper-slider.css"/>
-
-<f:comment><![CDATA[
-	<f:variable name="smsResponsiveImages"><t3sswiper:isLoaded extensionkey="sms_responsive_images"/></f:variable>
-]]></f:comment>
-
-	<div id="swiper-{data.uid}" class="t3s_swiper">
-		<f:render section="Header" optional="true">
-			<f:render partial="SlideHeader" arguments="{_all}" />
-		</f:render>
-		<f:variable name="dimensions"><t3sswiper:dimensions settings="{data.pi_flexform}" /></f:variable>
-		<div id="c{data.uid}" class="swiper swiper-{data.uid}" style="width:{dimensions.sliderwidth}px;height:{dimensions.sliderheight}px">
-			<f:comment> Slides </f:comment>
-			<div class="swiper-wrapper">
-				<f:render section="Swiper" arguments="{_all}" />
+	<div class="t3s_swiper{f:if(condition: data.frame_class, then: ' frame-{data.frame_class}', else: '')}">
+		<div id="swiper-{data.uid}">
+			<f:render section="Header" optional="true">
+				<f:render partial="SlideHeader" arguments="{_all}" />
+			</f:render>
+			<f:variable name="dimensions"><t3sswiper:dimensions settings="{data.pi_flexform}" /></f:variable>
+			<div id="c{data.uid}" class="swiper swiper-{data.uid}" style="max-width:{dimensions.sliderwidth}px;max-height:{dimensions.sliderheight}px">
+				<f:comment> Slides </f:comment>
+				<div class="swiper-wrapper">
+					<f:render section="Swiper" arguments="{_all}" />
+				</div>
+				<f:comment> Navigation </f:comment>
+				<f:if condition="{data.pi_flexform.navigationEnable}">
+					<div class="swiper-button-prev">
+						<svg fill="{data.pi_flexform.themeColor}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/></svg>
+					</div>
+					<div class="swiper-button-next">
+						<svg fill="{data.pi_flexform.themeColor}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/></svg>
+					</div>
+				</f:if>
+				<f:comment> Pagination </f:comment>
+				<f:if condition="{data.pi_flexform.paginationEnable}">
+					<div class="swiper-pagination"></div>
+				</f:if>
+				<f:comment> Progress Circle </f:comment>
+				<f:if condition="{data.pi_flexform.autoplayEnable} && {data.pi_flexform.autoplayProgressCircle}">
+					<div class="autoplay-progress">
+						<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"></circle></svg>
+						<span></span>
+					</div>
+				</f:if>
+				<f:comment> Scrollbar </f:comment>
+				<f:if condition="{data.pi_flexform.scrollbarEnable}">
+					<div class="swiper-scrollbar"></div>
+				</f:if>
 			</div>
-			<f:comment> Navigation </f:comment>
-			<f:if condition="{data.pi_flexform.navigationEnable}">
-				<div class="swiper-button-prev">
-					<svg fill="{data.pi_flexform.themeColor}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/></svg>
+			<f:comment> Thumbs </f:comment>
+			<f:if condition="{data.pi_flexform.thumbnailsEnable}">
+				<div thumbsSlider="" class="swiper swiper-thumb swiper-thumb-{data.uid}" style="max-width:{dimensions.sliderwidth}px">
+					<div class="swiper-wrapper">
+						<f:for each="{data.items}" as="slide" iteration="iterator">
+							<div class="swiper-slide">
+								<f:render partial="SlideThumbnail" arguments="{_all}" />
+							</div>
+						</f:for>
+					</div>
 				</div>
-				<div class="swiper-button-next">
-					<svg fill="{data.pi_flexform.themeColor}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/></svg>
-				</div>
-			</f:if>
-			<f:comment> Pagination </f:comment>
-			<f:if condition="{data.pi_flexform.paginationEnable}">
-				<div class="swiper-pagination"></div>
-			</f:if>
-			<f:comment> Progress Circle </f:comment>
-			<f:if condition="{data.pi_flexform.autoplayEnable} && {data.pi_flexform.autoplayProgressCircle}">
-				<div class="autoplay-progress">
-					<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"></circle></svg>
-					<span></span>
-				</div>
-			</f:if>
-			<f:comment> Scrollbar </f:comment>
-			<f:if condition="{data.pi_flexform.scrollbarEnable}">
-				<div class="swiper-scrollbar"></div>
 			</f:if>
 		</div>
-		<f:comment> Thumbs </f:comment>
-		<f:if condition="{data.pi_flexform.thumbnailsEnable}">
-			<div thumbsSlider="" class="swiper swiper-thumb swiper-thumb-{data.uid}" style="max-width:{dimensions.sliderwidth}px">
-				<div class="swiper-wrapper">
-					<f:for each="{data.items}" as="slide" iteration="iterator">
-						<div class="swiper-slide">
-							<f:render partial="SlideThumbnail" arguments="{_all}" />
-						</div>
-					</f:for>
-				</div>
-			</div>
-		</f:if>
 	</div>
 	<!-- TYPO3SEARCH_begin -->
 	</f:spaceless>

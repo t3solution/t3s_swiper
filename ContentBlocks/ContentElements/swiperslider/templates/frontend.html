@@ -7,14 +7,7 @@
     <f:for each="{data.items}" as="slide" iteration="iterator">
         <div class="swiper-slide">
             <f:if condition="{slide.t3s_swiperslide}">
-                <f:if condition="{smsResponsiveImages}">
-                    <f:then>
-                        <f:render partial="SmsResponsiveImages/SlideImage" arguments="{_all}" />
-                    </f:then>
-                    <f:else>
-                        <f:render partial="SlideImage" arguments="{_all}" />
-                    </f:else>
-                </f:if>
+                <f:render partial="SlideImage" arguments="{_all}" />
             </f:if>
             <f:if condition="{data.pi_flexform.useCaption} && ({slide.title} || {slide.caption})">
                 <f:render partial="SlideText" arguments="{_all}" />
